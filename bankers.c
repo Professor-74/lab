@@ -15,9 +15,11 @@ void calculateNeed() {
 int isSafe() {
     for (int i = 0; i < m; i++) work[i] = avail[i];
     for (int i = 0; i < n; i++) finish[i] = 0;
-    
-    int index = 0;
-    for (int k = 0; k < n; k++) {
+
+    int count = 0;
+
+    while (count < n) {
+        int found = 0;
         for (int i = 0; i < n; i++) {
             if (!finish[i]) {
                 int flag = 1;
@@ -30,13 +32,16 @@ int isSafe() {
                 if (flag) {
                     for (int j = 0; j < m; j++)
                         work[j] += alloc[i][j];
-                    safeSeq[index++] = i;
+                    safeSeq[count++] = i;
                     finish[i] = 1;
+                    found = 1;
                 }
             }
         }
+        if (!found) break;
     }
-    return index == n;
+
+    return count == n;
 }
 
 
@@ -73,9 +78,10 @@ int main() {
         printSafeSeq();
     } else {
         printf("\nSystem is NOT in a safe state.\n");
+        return 0;
     }
 
-    
+   
     char choice;
     printf("\nDo you want to make a resource request? (y/n): ");
     scanf(" %c", &choice);
@@ -84,12 +90,23 @@ int main() {
         int p, req[10];
         printf("Enter process number (0 to %d): ", n - 1);
         scanf("%d", &p);
+
+        if (p < 0 || p >= n) {
+            printf("Invalid process number.\n");
+            return 1;
+        }
+
         printf("Enter request for P%d:\n", p);
         for (int i = 0; i < m; i++)
             scanf("%d", &req[i]);
 
         int valid = 1;
         for (int i = 0; i < m; i++) {
+            if (req[i] < 0) {
+                printf("Error: Negative request not allowed.\n");
+                valid = 0;
+                break;
+            }
             if (req[i] > need[p][i]) {
                 printf("Error: Request exceeds maximum need.\n");
                 valid = 0;
@@ -115,7 +132,7 @@ int main() {
                 printSafeSeq();
             } else {
                 printf("Request leads to unsafe state. Request denied.\n");
-               
+                // Rollback to previous state
                 for (int i = 0; i < m; i++) {
                     avail[i] += req[i];
                     alloc[p][i] -= req[i];
