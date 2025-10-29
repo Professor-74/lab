@@ -1,0 +1,29 @@
+DATA SEGMENT
+    N1 DW 0003H
+    N2 DW 0004H
+    SUM DW ?          
+    CARRY DB ?        
+DATA ENDS
+
+CODE SEGMENT
+    ASSUME CS:CODE, DS:DATA
+
+START:
+    MOV AX, DATA
+    MOV DS, AX
+
+    MOV AX, N1       
+    ADD AX, N2        
+    MOV BL, 0         
+    JNC NO_CARRY
+    MOV BL, 1         
+NO_CARRY:
+
+  
+    MOV SUM, AX
+    MOV CARRY, BL
+
+    MOV AH, 4CH
+    INT 21H
+CODE ENDS
+END START
